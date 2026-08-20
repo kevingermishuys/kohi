@@ -3,19 +3,6 @@
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---- Hero video: reduced-motion / saveData -> poster only ---- */
-  var video = document.getElementById('heroVideo');
-  var saveData = navigator.connection && navigator.connection.saveData;
-  if (video && (reduceMotion || saveData)) {
-    var img = document.createElement('img');
-    img.src = video.getAttribute('poster');
-    img.alt = '';
-    img.setAttribute('aria-hidden', 'true');
-    img.width = 1180; img.height = 2048;
-    video.replaceWith(img);
-    video = null;
-  }
-
   /* ---- Open / closed status, Africa/Johannesburg ---- */
   var statusEl = document.getElementById('statusLine');
   if (statusEl) {
@@ -36,13 +23,11 @@
     } catch (e) { /* keep static fallback already in the DOM */ }
   }
 
-  /* ---- The Tonearm: scroll-linked rotation + section labels ---- */
+  /* ---- Scroll rail: writes --scroll-progress, read by the rail fill/dot and the mobile bar ---- */
   var root = document.documentElement;
-  var disc = document.getElementById('tonearmDisc');
-  var railLabel = document.getElementById('nowPlayingRail');
-  var mobileLabel = document.getElementById('nowPlayingMobile');
+  var railFill = document.getElementById('scrollRailFill');
 
-  if (disc) {
+  if (railFill) {
     var ticking = false;
     function updateProgress() {
       ticking = false;
@@ -60,22 +45,7 @@
       }, { passive: true });
       updateProgress();
     }
-    /* reduced motion: --scroll-progress stays at its CSS default (0) —
-       disc and arm sit at rest; only the section labels still update. */
-  }
-
-  var sections = document.querySelectorAll('[data-section-label]');
-  if (sections.length && 'IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          var label = entry.target.getAttribute('data-section-label');
-          if (railLabel) railLabel.textContent = label;
-          if (mobileLabel) mobileLabel.textContent = label;
-        }
-      });
-    }, { rootMargin: '-45% 0px -45% 0px' });
-    sections.forEach(function (s) { io.observe(s); });
+    /* reduced motion: --scroll-progress stays at its CSS default (0) — the rail sits at rest. */
   }
 
   /* ---- Section reveal (fade + rise, once) ---- */
@@ -115,6 +85,24 @@
       iframe.title = 'Map to Kōhī by Ifuku, 44 Stanley Avenue';
       frame.innerHTML = '';
       frame.appendChild(iframe);
+    });
+  }
+
+  /* ---- Magnetic buttons: subtle pointer-follow tilt on fine-pointer/hover devices ---- */
+  var canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (canHover && !reduceMotion) {
+    document.querySelectorAll('.btn').forEach(function (btn) {
+      btn.addEventListener('pointermove', function (e) {
+        var r = btn.getBoundingClientRect();
+        var x = ((e.clientX - r.left) / r.width - 0.5) * 10;
+        var y = ((e.clientY - r.top) / r.height - 0.5) * 10;
+        btn.style.setProperty('--mx', x.toFixed(1) + 'px');
+        btn.style.setProperty('--my', y.toFixed(1) + 'px');
+      });
+      btn.addEventListener('pointerleave', function () {
+        btn.style.removeProperty('--mx');
+        btn.style.removeProperty('--my');
+      });
     });
   }
 })();

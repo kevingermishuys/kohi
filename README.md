@@ -21,25 +21,36 @@ which never ship.)
 - Everything under `/assets`, `_headers`, `favicon*`, `apple-touch-icon.png`, and `index.html`
   is the deployable site.
 
-## What's a placeholder right now
+## No photography right now — the record-sleeve graphic system
 
-The brief's asset manifest (§6.3) calls for four dedicated interior/product photos. Only the
-hero video and the two logo files were actually delivered — no photography. Rather than invent
-imagery, this build:
+All photography and the hero video have been pulled from this build (client is sending through
+real shots later). In their place is an original, illustrated system built entirely from the
+locked palette (§2.1) — no photos, no stock art:
 
-- Used two privacy-safe frame-grabs from the hero video (hi-fi rack + doorway/plant, and a
-  hands-only vinyl shot) for **A2 (The room)** and the **A4 (Sessions)** bonus image.
-- Left **A3 (The bar)** and **B1 (The walls)** as styled placeholder panels — no photo — because
-  the only available frames of those moments show identifiable customers' faces, and the brief's
-  own Q2 flags publishing identifiable people as a POPIA risk pending consent. See
-  `brief.md` §9 Q2 and Q7.
-- Dropped the B1 "ARTIST CREDITS TO BE CONFIRMED" line entirely, since there's no gallery-wall
-  photo in this build to credit (brief explicitly allows this: "placeholder must be replaced or
-  the whole credit line removed").
+- **Hero** (`.hero__art`) — a spinning vinyl (`#vinyl-record` symbol) with a resting tonearm,
+  a halftone-dot wash, rising steam wisps and a decorative equalizer strip along the bottom edge.
+- **A2 The room / A3 The bar / B1 The walls** (`.art-panel` + modifiers `--room`/`--bar`/`--walls`)
+  — Blue-Note-style record-sleeve cards: an oversized faint section numeral, halftone texture,
+  and a section-specific motif (spinning vinyl / steam wisps / overlapping "frame" shapes for the
+  rotating gallery wall).
+- **Visit** (`.pin-ping`) — a pulsing location pin over halftone texture, in place of the old
+  map-poster image.
+- A scrolling **ticker** band (`MUSIC · COFFEE · MATCHA · VINYL · JAZZ KISSA · 44 STANLEY`) and a
+  subtle full-viewport **film-grain overlay** (`.grain`) round out the "less static, more jazz
+  kissa" pass. Everything continuous (vinyl spin, steam, ticker, pulse rings, marquee) is wrapped
+  in `@media (prefers-reduced-motion: no-preference)`, matching the existing `.reveal`/tonearm
+  convention — reduced-motion visitors get the static layout only.
 
-Swap in real photography by dropping files into `assets/photos/` and updating the `<picture>`
-sources in `index.html` — the CSS placeholder panels (`.photo-placeholder`) can be deleted once
-real images land.
+All of this lives in shared `<symbol>`/`<pattern>` defs at the top of `index.html`
+(`#vinyl-record`, `#steam-wisp`, `#pin-mark`, `#halftone-dots`) plus the `.art-panel`,
+`.hero__art`, `.ticker`, `.grain`, `.pin-ping` rules in `style.css`.
+
+**Swapping in real photography when it lands:** the old `.figure`/`.figure img`/`.figure figcaption`
+CSS rules are still in `style.css` for exactly this. Drop files into `assets/photos/`, replace the
+relevant `.art-panel` block in `index.html` with a `<figure class="figure"><picture>…</picture>
+<figcaption>…</figcaption></figure>` (see git history for the original A2 markup as a template),
+and delete that panel's illustration. No need to touch anything else — the illustrated panels are
+scoped per-section and don't share state.
 
 ## Open items before launch
 
